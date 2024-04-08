@@ -3,19 +3,19 @@
     {
         "id":"1",
         "title":"Hint 1",
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do",
+        "description": "Enter some hint here hi hello",
         "valid": true
     },
     {
         "id":"2",
         "title":"Hint 2",
-        "description": " eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "description": " eiusmod tempor incididunt ut",
         "valid": true
     },
     {
         "id":"3",
         "title":"Hint 3",
-        "description": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea",
+        "description": "Ut enim ad minim veniam,",
         "valid": true
     },
     {

@@ -2,6 +2,7 @@ import cv2
 import sys
 import json
 import configparser
+from subprocess import Popen
 if len(sys.argv) == 0:
 	print("No config file specified! Exiting..")
 	exit(1)
@@ -51,6 +52,14 @@ else:
 			window = False
 	except:
 		window = False
+	try:
+		lcd = cnf.get("Options","lcd")
+		if lcd == "yes":
+			lcd = True
+		else:
+			lcd = False
+	except:
+		lcd = False
 	if height != None:
 		cap.set(3,int(height))
 	if width != None:
@@ -87,9 +96,15 @@ else:
 			for i in f:
 				if i["id"] == data:
 					print("Hint is:",i["description"])
+					if lcd:
+						print("Changing LCD text")
+						Popen(["python3","display.py",i["description"],"0x27"])
 					break
 			else:
+				prv = data
 				print("Invalid code!")
+				if lcd:
+					Popen(["python3","display.py","Invalid Code!","0x27"])
 if window:
 	cap.release()
 	cv2.destroyAllWindows()
