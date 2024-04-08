@@ -1,40 +1,78 @@
 import cv2 
 import sys
 import json
-try:
-	usez = sys.argv[3]
-	if usez == "pyzbar" or usez == "zbar":
-		zbar = True
-		from pyzbar.pyzbar import decode
-	else:
-		zbar = False
-except:
-	zbar = False
+import configparser
 if len(sys.argv) == 0:
-	print("No hintfile specified! Exiting..")
+	print("No config file specified! Exiting..")
 	exit(1)
 else:
-	try:
-		f = json.load(open(sys.argv[1]))
-	except:
-		print("File not found! Exiting...")
+	cnf = configparser.ConfigParser()
+	cl = cnf.read(sys.argv[1])
+	if len(cl) == 0:
+		print("Config file not found! Exiting")
 		exit(1)
+	else:
+		try:
+			camera = int(cnf.get("Options","camera"))
+		except:
+			camera = 0
+		try:
+			hints = cnf.get("Options","hints")
+		except:
+			print("Hints not found! Exiting..")
+			exit(1)
+		try:
+			scanner = cnf.get("Options","scanner")
+			if scanner == "pyzbar" or scanner == "zbar":
+				from pyzbar.pyzbar import decode
+				zbar = True
+			else:
+				zbar = False
+		except:
+			zbar = False
 	try:
-		cap = cv2.VideoCapture(int(sys.argv[2]))
+		cap = cv2.VideoCapture(camera)
 	except:
-		print("Camera not specified/not found. Attempting to use default camera")
+		print("Unable to access. Attempting to use default camera")
 		cap = cv2.VideoCapture(0)
-	cap.set(3,384)
-	cap.set(4,288)
+	try:
+		height = cnf.get("Options","height")
+	except:
+		height = None
+	try:
+		width = cnf.get("Options","width")
+	except:
+		width = None
+	try:
+		wd = cnf.get("Options","window")
+		if wd == "yes":
+			window = True
+		else:
+			window = False
+	except:
+		window = False
+	if height != None:
+		cap.set(3,int(height))
+	if width != None:
+		cap.set(4,int(width))
 	if zbar:
 		print("Using pyzbar")
 	else:
 		print("Using OpenCV QRCodeDetector")
+	try:
+		f = json.load(open(hints))
+	except:
+		print("Hints not found! Exiting..")
+		exit(1)
 	detector = cv2.QRCodeDetector()
 	print("Starting scanner..")
 	prv = None
 	while True: 
 		_, img = cap.read()
+		if window:
+			cv2.imshow('frame',img)
+			if cv2.waitKey(1) & 0xFF == ord('q'):
+				break
 		if zbar:
 			if len(decode(img)) != 0:
 				data = decode(img)[0].data.decode("utf-8")
@@ -52,3 +90,6 @@ else:
 					break
 			else:
 				print("Invalid code!")
+if window:
+	cap.release()
+	cv2.destroyAllWindows()
